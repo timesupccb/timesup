@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimesUp Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            scroll-behavior: smooth;
+        }
+        header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        section {
+            height: 100vh;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        #home { background: lightblue; }
+        #about { background: rgb(143, 207, 143); }
+        #services { background: rgb(228, 150, 237); }
+        #contact { background: lightgoldenrodyellow; }
+        #personal-info { background: rgb(236, 174, 135); }
+        .info-container {
+            max-width: 600px;
+            margin: auto;
+            text-align: left;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Newly inserted styles for Countdown Timer & Live GPS Tracking */
+        .home-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+          width: 250px;
+            height: 100px; /* Adjust this value as needed */
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+             border-radius: 12px;
+             text-align: center;
+        }
+
+        #countdown-box {
+            width: 300px;
+            border: 3px solid #ff0000;
+        }
+
+        #gps-box {
+            width: 300px;
+            border: 3px solid #007bff;
+        }
+
+        #countdown {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff0000;
+        }
+
+</style>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#contact">Contact</a>
+            <a href="#personal-info">Personal Info</a>
+        </nav>
+    </header>
+    
+    <section id="home">
+        <div class="home-container">
+            <!-- Countdown Timer -->
+            <div class="info-box" id="countdown-box">
+                <h2>Remaining Playtime</h2>
+                <p id="countdown">00:00:00</p>
+            </div>
+    
+    
+            <!-- Live GPS Tracking -->
+            <div class="info-box" id="gps-box">
+                <h2>Child's Location</h2>
+                <p><strong>Latitude:</strong> <span id="lat">Fetching...</span></p> 
+                <p><strong>Longitude:</strong> <span id="lon">Fetching...</span></p>
+                <p><strong>Address:</strong> <span id="locationName">Fetching location...</span></p>
+            </div>
+        </div>    
+    
+        <!-- Map -->
+        <div id="map"></div>
+    </section>
+    
+    <section id="about">
+        <h1>About Us</h1>
+        <p>TimesUp Developers Info</p>
+    
+        <div class="team-container" style="margin-top: 30px;">
+            <div class="profile-card" onclick="openModal('John Ramirez', 'Principal Investigator', 'John is the lead researcher...')">
+                <img src="images/john-ramirez.jpg" alt="John Ramirez">
+                <h3>John Ramirez</h3>
+                <p>Principal Investigator</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Marcus David', 'Lead Programmer', 'Marcus is responsible for...')">
+                <img src="images/marcus-david.jpg" alt="Marcus David">
+                <h3>Marcus David</h3>
+                <p>Lead Programmer</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Airi Takasu', 'Lead Developer 1', 'Airi ensures materials are sourced...')">
+                <img src="images/nicole-pablo.jpg" alt="Airi Takasu">
+                <h3>Airi Takasu</h3>
+                <p>Lead Developer 1</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Ashney Napuli', 'Lead Developer 2', 'Ashney oversees development...')">
+                <img src="images/ayesha-delos-santos.jpg" alt="Ashney Napuli">
+                <h3>Ashney Napuli</h3>
+                <p>Lead Developer 2</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Jana Dapilaga', 'Data Analyst', 'Jana analyzes and interprets data...')">
+                <img src="images/jana-dapilaga.jpg" alt="Jana Dapilaga">
+                <h3>Jana Dapilaga</h3>
+                <p>Data Analyst</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Ayesha Delos Santos', 'Finance Manager', 'Ayesha handles financial planning...')">
+                <img src="images/ashney-napuli.jpg" alt="Ayesha Delos Santos">
+                <h3>Ayesha Delos Santos</h3>
+                <p>Finance Manager</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Nicole Pablo', 'Records Officer', 'Nicole maintains accurate records...')">
+                <img src="images/airi-takasu.jpg" alt="Nicole Pablo">
+                <h3>Nicole Pablo</h3>
+                <p>Records Officer</p>
+            </div>
+            <div class="profile-card" onclick="openModal('Fritzie Rivera', 'Research Support', 'Fritzie assists with research tasks...')">
+                <img src="images/fritzie-rivera.jpg" alt="Fritzie Rivera">
+                <h3>Fritzie Rivera</h3>
+                <p>Research Support</p>
+            </div>
+        </div>
+    
+        <!-- Modal Popup -->
+        <div id="profile-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2 id="modal-name"></h2>
+                <h4 id="modal-role"></h4>
+                <p id="modal-description"></p>
+            </div>
+        </div>
+    
+    </section>
+
+    <style>
+        /* Team Section */
+        .team-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            justify-items: center;
+            max-width: 900px;
+            margin: auto;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+            width: 180px;
+        }
+        
+        .profile-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .profile-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        
+        /* Modal Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 50%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+    
+    <script>
+        function openModal(name, role, description) {
+            document.getElementById("modal-name").innerText = name;
+            document.getElementById("modal-role").innerText = role;
+            document.getElementById("modal-description").innerText = description;
+            document.getElementById("profile-modal").style.display = "flex";
+        }
+    
+        function closeModal() {
+            document.getElementById("profile-modal").style.display = "none";
+        }
+    
+        // Close modal when clicking outside the content
+        window.onclick = function(event) {
+            const modal = document.getElementById("profile-modal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+    
+    </section>
+    
+    <section id="services">
+        <h1>Our Services</h1>
+        <p>Discover what we offer.</p>
+    </section>
+    
+    <section id="contact">
+        <h1>Contact Us</h1>
+        <p>Get in touch with us.</p>
+    </section>
+    
+    <section id="personal-info">
+        <h1>Personal Information</h1>
+        <div class="info-container">
+            <p><strong>Parent Name:</strong> <span id="parentName">Loading...</span></p>
+            <p><strong>Child Name:</strong> <span id="childName">Loading...</span></p>
+            <p><strong>Phone Number:</strong> <span id="phone">Loading...</span></p>
+            <p><strong>Home Address:</strong> <span id="address">Loading...</span></p>
+        </div>
+    </section>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAz5WQx1Js4QsJe-4d3DQ9YaSk5B2r8Cbg",
+            authDomain: "airiiiii.firebaseapp.com",
+            databaseURL: "https://airiiiii-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "airiiiii",
+            storageBucket: "airiiiii.firebasestorage.app",
+            messagingSenderId: "713286769537",
+            appId: "1:713286769537:web:ec3e2c3756e781b0362680"
+        };
+    
+        // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ✅ Extract childName from URL query parameters
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    const childName = getQueryParam("childname");
+
+    if (childName) {
+        const childRef = ref(db, `TimesUp/${childName}`);
+        
+        onValue(childRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                document.getElementById("parentName").innerText = data.parentName;
+                document.getElementById("childName").innerText = data.childName;
+
+                // ✅ Fetch Parent Details Separately
+                const parentRef = ref(db, `ParentData/${data.parentName}`);
+                onValue(parentRef, (parentSnapshot) => {
+                    if (parentSnapshot.exists()) {
+                        const parentData = parentSnapshot.val();
+                        document.getElementById("phone").innerText = parentData.phone;
+                        document.getElementById("address").innerText = parentData.address;
+                    } else {
+                        console.log("Parent data not found.");
+                    }
+                });
+                // ✅ Countdown Timer Logic
+                const countdownElement = document.getElementById("countdown");
+                const timerRef = ref(db, `TimesUp/${childName}/remainingTime`);
+                let countdownInterval;
+                onValue(timerRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        let remainingSeconds = snapshot.val();
+                        // Clear existing interval before starting a new one
+                        if (countdownInterval) clearInterval(countdownInterval);
+                        function updateCountdown() {
+                            if (remainingSeconds <= 0) {
+                                countdownElement.innerText = "00:00:00";
+                                alert("TimesUp!");
+                                clearInterval(countdownInterval);
+                                return;
+                            }
+                            let hours = Math.floor(remainingSeconds / 3600);
+                            let minutes = Math.floor((remainingSeconds % 3600) / 60);
+                            let seconds = remainingSeconds % 60;
+
+                            countdownElement.innerText = 
+                                String(hours).padStart(2, '0') + ":" +
+                                String(minutes).padStart(2, '0') + ":" +
+                                String(seconds).padStart(2, '0');
+                            remainingSeconds--; // Decrease the countdown every second
+                        }
+                        updateCountdown(); // Call once immediately
+                        countdownInterval = setInterval(updateCountdown, 1000); // Start interval
+                    } else {
+                        console.log("No remaining time data found.");
+                    }
+                });
+            } else {
+                console.log("Child data not found.");
+            }
+        });
+    } else {
+        console.log("No child name provided in URL.");
+    }
+
+    // ✅ Initialize Map with Satellite View
+var map = L.map('map');
+map.setView([14.8665360, 120.2354985], 20);  // Starting coordinates (initially static)
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+navigator.geolocation.watchPosition(success, error);
+
+let marker, circle, zoomed;
+
+function success(pos) {
+ 
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const accuracy = pos.coords.accuracy;
+
+    if (marker) {
+        map.removeLayer(marker);
+        map.removeLayer(circle);
+    }
+
+    marker = L.marker([lat, lng]).addTo(map);
+    circle = L.circle([lat, lng], { radius: accuracy }).addTo(map);
+
+    if (!zoomed) {
+         zoomed = map.fitBounds(circle.getBounds());
+    }
+
+    map.setView([lat,lng]);
+
+}
+
+function error(err) {
+
+    if (err.code === 1) {
+        alert("Please allow geolocation access");
+    } else {
+        alert("Cannot get current location");
+    }
+    
+}
+// ✅ Real-Time GPS Location Tracking
+ const gpsRef = ref(db, `TimesUp/${childName}/Location`); // LOCATION UPPER, CONST-----------------------------------------------
+
+onValue(gpsRef, (snapshot) => {
+    if (snapshot.exists()) {
+         const gpsData = snapshot.val(); // CONST, LAT----------------------------------------------
+         const { lat, lon, address } = gpsData; // CONST, LAT----------------------------------------------
+
+        if (lat && lon) {
+            // Update the coordinates display
+            // ✅ Update the coordinates display
+            document.getElementById("lat").innerText = (lat !== undefined && lat !== null) ? `Latitude: ${parseFloat(lat).toFixed(6)}` : "Latitude: Not Available"; 
+            document.getElementById("lon").innerText = (lon !== undefined && lon !== null) ? `Longitude: ${parseFloat(lon).toFixed(6)}` : "Longitude: Not Available";
+            document.getElementById("locationName").innerText = address ? `Location: ${address}` : "Location: Not Available";
+
+            // Update the marker position on the map
+            marker.setLatLng([lat, lon]).update();
+
+            // Optionally, you can add a popup to the marker showing the address
+            marker.bindPopup(`<b>Location:</b> ${address}`).openPopup();
+
+            // Optionally, adjust the map view based on the new location
+            map.setView([lat, lon], 20);
+        }
+    } else {
+        console.log("No GPS data found in Firebase.");
+    }
+});
+
+</script>
+</body>
+</html>

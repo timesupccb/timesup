@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimesUp - Register Your Child</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register Your Child</h2>
+        <input type="text" id="parentName" placeholder="Parent Name"><br>
+        <input type="text" id="childName" placeholder="Child Name"><br>
+        <input type="text" id="address" placeholder="Home Address"><br>
+        <input type="text" id="phone" placeholder="Phone Number"><br>
+        <select id="playtime">
+            <option value="1">1 Hour</option>
+            <option value="2">2 Hours</option>
+            <option value="3">3 Hours</option>
+        </select>
+        <button onclick="registerChild()">Register</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAz5WQx1Js4QsJe-4d3DQ9YaSk5B2r8Cbg",
+            authDomain: "airiiiii.firebaseapp.com",
+            databaseURL: "https://airiiiii-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "airiiiii",
+            storageBucket: "airiiiii.firebasestorage.app",
+            messagingSenderId: "713286769537",
+            appId: "1:713286769537:web:ec3e2c3756e781b0362680"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Make db available globally
+        window.db = db;
+        window.ref = ref;
+        window.set = set;
+    </script>
+
+    <!-- Register Child Script -->
+    <script>
+        function registerChild() {
+            const parentName = document.getElementById("parentName").value;
+            const childName = document.getElementById("childName").value;
+            const address = document.getElementById("address").value;
+            const phone = document.getElementById("phone").value;
+            const playtime = document.getElementById("playtime").value * 3600; // Convert hours to seconds
+    
+            if (parentName && childName && address && phone) {
+                // Store all details under TimesUp path
+                set(ref(window.db, "TimesUp/" + childName), {
+                    parentName: parentName,
+                    childName: childName,
+                    address: address,
+                    phone: phone,
+                    playtime: playtime,
+                    remainingTime: playtime,
+                    status: "In Use",
+                    Location: { lat: 0, lon: 0 }
+                }).then(() => {
+                    alert("Child registered successfully!");
+                    window.location.href = `loctimesup.html?childname=${encodeURIComponent(childName)}#personal-info`;
+                }).catch((error) => {
+                    alert("Error: " + error.message);
+                });
+            } else {
+                alert("Please fill out all fields.");
+            }
+        }
+    </script>
+</body>
+</html>
